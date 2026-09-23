@@ -199,3 +199,32 @@ body {
 .stage-form label {
   font-size: 12px;
 }
+/* Каталогтағы ұсақ жазуларды үлкейту */
+.stats > div > span {
+  font-size: 12px;
+}
+
+.stats small,
+.filters select,
+.section-heading > .muted,
+.topic-tag,
+.badge,
+.card-number,
+.card-footer {
+  font-size: 11px;
+}
+
+.search input,
+.task-card .card-desc {
+  font-size: 13px;
+}
+
+@media (max-width: 560px) {
+  .stats > div > span {
+    font-size: 10px;
+  }
+
+  .section-heading > .muted {
+    font-size: 10px;
+  }
+}
