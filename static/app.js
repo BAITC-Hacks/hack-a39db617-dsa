@@ -66,14 +66,98 @@ function draftBanner(){
 }
 function navItem(id,label,icon,count=''){return `<button class="nav-item ${view===id?'active':''}" data-action="nav" data-view="${id}"><span>${icon}</span>${label}${count!==''?`<b>${count}</b>`:''}</button>`;}
 function shell(content){
- $('#app').innerHTML=`<aside class="sidebar"><a class="brand" href="#" data-action="nav" data-view="catalog"><span class="brand-mark">s</span><span>AI Sana<small>CHALLENGE HUB</small></span></a><div class="workspace-label">РАБОЧЕЕ ПРОСТРАНСТВО</div><nav>${navItem('catalog','Каталог задач','▦',state.tasks.filter(t=>t.published).length)}${navItem('workspace',role==='business'?'Мои задачи':'Мои отклики','▤')}${navItem('teams','Команды','◉')}${navItem('guide','Как это работает','✦')}</nav><div class="side-note"><span class="spark">✦</span><strong>Большие решения<br>начинаются с вопроса.</strong><p>Помогаем бизнесу и студентам найти общий язык.</p><span class="note-line"></span></div><div class="sidebar-bottom"><span class="live-dot"></span> AI Sana · Практический хакатон<small>Демо-пространство · синтетические данные</small></div></aside><div class="main-shell"><header class="topbar"><div class="breadcrumb">Рабочее пространство <span>/</span> <b>${({catalog:'Каталог задач',workspace:role==='business'?'Мои задачи':'Мои отклики',teams:'Команды',guide:'Как это работает',editor:'Конструктор',detail:'Карточка задачи'})[view]}</b></div><div class="identity"><span class="demo-label">ДЕМО-РОЛЬ</span><select id="role" aria-label="Демо-роль"><option value="business" ${role==='business'?'selected':''}>Бизнес</option><option value="student" ${role==='student'?'selected':''}>Студент</option></select>${role==='student'?`<select id="team-select" aria-label="Команда">${state.teams.map(t=>`<option value="${t.id}" ${t.id===teamId?'selected':''}>${e(t.name)}</option>`).join('')}</select>`:''}<span class="avatar">${role==='business'?'Б':'С'}</span></div></header><main>${content}</main><footer>AI Sana Challenge Hub <span>От бизнес-задачи к первому решению</span><b>2026</b></footer></div>`;
+$('#app').innerHTML=`
+<aside class="sidebar">
+
+  <button
+    class="sidebar-toggle"
+    id="sidebarToggle"
+    type="button"
+    aria-label="Скрыть меню"
+  >‹</button>
+
+  <a class="brand" href="#" data-action="nav" data-view="catalog">
+    <span class="brand-mark">s</span>
+    <span>AI Sana<small>CHALLENGE HUB</small></span>
+  </a>
+
+  <nav>
+    ${navItem('catalog','Каталог задач','▦',state.tasks.filter(t=>t.published).length)}
+    ${navItem('workspace',role==='business'?'Мои задачи':'Мои отклики','▤')}
+    ${navItem('teams','Команды','◉')}
+    ${navItem('guide','Как это работает','✦')}
+  </nav>
+
+  <div class="side-note">
+    <span class="spark">✦</span>
+    <strong>Большие решения<br>начинаются с вопроса.</strong>
+    <p>Помогаем бизнесу и студентам найти общий язык.</p>
+    <span class="note-line"></span>
+  </div>
+
+</aside>
+
+<div class="main-shell">
+
+  <header class="topbar">
+
+
+    <div class="identity">
+
+      <span class="demo-label">ДЕМО-РОЛЬ</span>
+
+      <select id="role" aria-label="Демо-роль">
+        <option value="business" ${role==='business'?'selected':''}>
+          Бизнес
+        </option>
+
+        <option value="student" ${role==='student'?'selected':''}>
+          Студент
+        </option>
+      </select>
+
+      ${role==='student'
+        ? `<select id="team-select" aria-label="Команда">
+            ${state.teams.map(t=>`
+              <option
+                value="${t.id}"
+                ${t.id===teamId?'selected':''}
+              >
+                ${e(t.name)}
+              </option>
+            `).join('')}
+          </select>`
+        : ''
+      }
+
+      <span class="avatar">
+        ${role==='business'?'Б':'С'}
+      </span>
+
+    </div>
+
+  </header>
+
+  <main>
+    ${content}
+  </main>
+
+<footer class="contact-footer">
+  <span>DSA QYZPU</span>
+  <span class="footer-divider">|</span>
+  <span>dsa.qyzpu@gmail.com</span>
+  <span class="footer-divider">|</span>
+  <span>+7 707 077 07 06</span>
+</footer>
+
+</div>`;
 }
 function pageHead(kicker,title,description,action=''){return `<div class="page-head"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p>${description}</p></div>${action}</div>`;}
 function badge(t){return `<span class="badge ${levelClass(t.score)}"><i></i>${t.level}</span>`;}
 function card(t,index){return `<article class="task-card"><div class="card-top"><span class="topic-tag">${e(t.topic)}</span><span class="card-number">${String(index+1).padStart(2,'0')}</span></div><h3><button class="title-link" data-action="detail" data-id="${t.id}">${e(t.fields.title)}</button></h3><p class="card-desc">${e(t.fields.need || t.fields.context || 'Задача требует уточнения.')}</p><div class="score-row">${badge(t)}<span class="score-value">${t.score}<small>/100</small></span></div><div class="progress"><span style="width:${t.score}%"></span></div><div class="card-footer"><span>◉ ${proposalCount(countProposals(t.id))}</span><button class="text-button" data-action="detail" data-id="${t.id}">Подробнее <span>↗</span></button></div></article>`;}
 function catalog(){
  const tasks=state.tasks.filter(t=>t.published), ready=tasks.filter(t=>t.score>=70).length;
- shell(`${pageHead('ОТКРЫТЫЕ ВОЗМОЖНОСТИ','Настоящие задачи.<br>Ваш следующий шаг.','Находите задачи бизнеса, предлагайте идеи и создавайте решения вместе.',role==='business'?'<button class="primary" data-action="new">＋ Создать задачу</button>':'<button class="primary" data-action="nav" data-view="workspace">Мои отклики ↗</button>')}${draftBanner()}<section class="hero-banner"><div><span class="banner-label">ОТ ИДЕИ К СОТРУДНИЧЕСТВУ</span><h2>Чем яснее задача,<br>тем ближе решение.</h2><p>Уточняйте детали, повышайте рейтинг готовности<br>и находите команду для следующего шага.</p><button class="banner-link" data-action="nav" data-view="guide">Как работает рейтинг <span>↗</span></button></div><div class="orbit-art" aria-hidden="true"><div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div><div class="art-star">✳</div><span class="floating-label l1">Идея</span><span class="floating-label l2">Команда</span><span class="floating-label l3">Решение ↗</span></div></section><section class="stats"><div><span>Открытых задач</span><strong>${tasks.length.toString().padStart(2,'0')}<small>в общем каталоге</small></strong></div><div><span>Готовы к работе</span><strong>${ready.toString().padStart(2,'0')}<small>рейтинг от 70 баллов</small></strong></div><div><span>Студенческих команд</span><strong>${state.teams.length.toString().padStart(2,'0')}<small>идеи, навыки, энергия</small></strong></div></section><section class="catalog-section"><div class="section-heading"><h2>Каталог задач <span>${tasks.length}</span></h2><span class="muted">↓ По рейтингу готовности</span></div><div class="filters"><label class="search"><span>⌕</span><input id="search" placeholder="Найти задачу или направление" aria-label="Поиск задач" value="${e(search)}"></label><select id="topic-filter" aria-label="Тема"><option value="">Все направления</option>${state.topics.map(t=>`<option ${topic===t?'selected':''}>${e(t)}</option>`).join('')}</select><select id="level-filter" aria-label="Уровень готовности"><option value="">Любая готовность</option>${['Черновик','Рабочая','Готовая','Приоритетная'].map(t=>`<option ${level===t?'selected':''}>${t}</option>`).join('')}</select></div><div id="cards" class="cards"></div><p class="catalog-note">Все задачи открыты для откликов. Рейтинг показывает полноту описания — выбор команды остаётся за бизнесом.</p></section>`);
+shell(`${pageHead('ОТКРЫТЫЕ ВОЗМОЖНОСТИ','Настоящие задачи.<br>Ваш следующий шаг.','Находите задачи бизнеса, предлагайте идеи и создавайте решения вместе.',role==='business'?'<button class="primary" data-action="new">＋ Создать задачу</button>':'<button class="primary" data-action="nav" data-view="workspace">Мои отклики ↗</button>')}${draftBanner()}<section class="hero-banner"><div><span class="banner-label">ОТ ИДЕИ К СОТРУДНИЧЕСТВУ</span><h2>Чем яснее задача,<br>тем ближе решение.</h2><p>Уточняйте детали, повышайте рейтинг готовности<br>и находите команду для следующего шага.</p><button class="banner-link" data-action="nav" data-view="guide">Как работает рейтинг <span>↗</span></button></div><div class="orbit-art" aria-hidden="true"><div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div><div class="art-star">✳</div><span class="floating-label l1">Идея</span><span class="floating-label l2">Команда</span><span class="floating-label l3">Решение ↗</span></div></section><section class="stats"><div><span>Открытых задач</span><strong>${tasks.length.toString().padStart(2,'0')}<small>в общем каталоге</small></strong></div><div><span>Готовы к работе</span><strong>${ready.toString().padStart(2,'0')}<small>рейтинг от 70 баллов</small></strong></div><div><span>Студенческих команд</span><strong>${state.teams.length.toString().padStart(2,'0')}<small>идеи, навыки, энергия</small></strong></div></section><section class="catalog-section"><div class="section-heading"><h2>Каталог задач <span>${tasks.length}</span></h2><span class="muted">↓ По рейтингу готовности</span></div><div class="filters"><label class="search"><span>⌕</span><input id="search" placeholder="Найти задачу или направление" aria-label="Поиск задач" value="${e(search)}"></label><select id="topic-filter" aria-label="Тема"><option value="">Все направления</option>${state.topics.map(t=>`<option ${topic===t?'selected':''}>${e(t)}</option>`).join('')}</select><select id="level-filter" aria-label="Уровень готовности"><option value="">Любая готовность</option>${['Черновик','Рабочая','Готовая','Приоритетная'].map(t=>`<option ${level===t?'selected':''}>${t}</option>`).join('')}</select></div><div id="cards" class="cards"></div></section>`);
  updateCards();
 }
 function updateCards(){const list=state.tasks.filter(t=>t.published && (!topic||t.topic===topic) && (!level||t.level===level) && `${t.topic} ${t.fields.title} ${t.fields.context} ${t.fields.need}`.toLowerCase().includes(search.toLowerCase()));$('#cards').innerHTML=list.length?list.map(card).join(''):'<div class="empty">Ничего не найдено. Попробуйте другое направление или запрос.<br><button class="text-button" data-action="clear-filters">Сбросить фильтры</button></div>';}
@@ -354,3 +438,11 @@ document.addEventListener('submit',async event=>{
  }catch(err){toast(err.message);}finally{busy=false;if(button)button.disabled=false;}
 });
 refresh().then(render).catch(err=>{$('#app').innerHTML=`<div class="loading"><h1>Не удалось загрузить приложение</h1><p>${e(err.message)}</p><p>Убедитесь, что server.py запущен, и обновите страницу.</p></div>`;});
+// Открытие / закрытие бокового меню
+document.addEventListener('click', (event) => {
+  const toggle = event.target.closest('#sidebarToggle');
+
+  if (!toggle) return;
+
+  document.body.classList.toggle('sidebar-collapsed');
+});

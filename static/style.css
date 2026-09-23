@@ -16,3 +16,366 @@ input,textarea,select{background:#fcfdf9;border:1px solid #d5dfcb;border-radius:
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
 
 @media(max-width:720px){.orbit-art{display:none}.hero-banner>div:first-child{max-width:100%}}
+body :is(
+  .workspace-label,
+  .brand small,
+  .sidebar-bottom small,
+  .demo-label,
+  .breadcrumb,
+  .eyebrow,
+  .banner-label,
+  .badge,
+  .topic-tag,
+  .card-number,
+  .card-footer,
+  .catalog-note,
+  .stats small,
+  .section-heading > .muted,
+  .question-hint,
+  .question-number,
+  .ai-score-hint
+) {
+  font-size: 12px;
+}
+
+body :is(
+  .nav-item,
+  .page-head p,
+  .text-button,
+  .primary,
+  .secondary,
+  .search input,
+  .filters select,
+  .card-desc,
+  .fields-view p,
+  .proposal p,
+  .proposal-meta,
+  .guide,
+  .guide-step p,
+  .form-panel label,
+  .form-panel small,
+  .stage-form label,
+  .ai-question-card .question-title,
+  .ai-question-card textarea,
+  .rating-panel > .muted,
+  .rubric > div
+) {
+  font-size: 14px;
+}
+
+.rubric small {
+  font-size: 12px;
+}
+/* =========================================
+   TEAM PROGRESS / XP
+   ========================================= */
+
+.team-xp-card {
+  margin: 8px 0 38px;
+  padding: 30px 32px;
+  background: #ffffff;
+  border: 1px solid #dfe5dc;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(36, 78, 64, 0.06);
+}
+
+.team-xp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.team-xp-eyebrow {
+  margin-bottom: 8px;
+  color: #7d8d82;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.team-xp-card h2 {
+  margin: 0;
+  color: #202b2b;
+  font-size: 26px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+
+.team-xp-level {
+  margin-top: 8px;
+  color: #7b8386;
+  font-size: 13px;
+}
+
+.team-xp-level span {
+  color: #244e40;
+  font-weight: 600;
+}
+
+.team-xp-score {
+  min-width: 130px;
+  padding: 13px 18px;
+  background: #f2f7eb;
+  border: 1px solid #e0ead3;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.team-xp-score strong {
+  display: block;
+  color: #244e40;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+
+.team-xp-score span {
+  display: block;
+  margin-top: 4px;
+  color: #7c8c7e;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+
+/* XP progress bar */
+
+.team-xp-progress {
+  width: 100%;
+  height: 9px;
+  overflow: hidden;
+  background: #edf1eb;
+  border-radius: 999px;
+}
+
+.team-xp-progress span {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  background: #b8d77f;
+  border-radius: inherit;
+  transition: width 0.35s ease;
+}
+
+.team-xp-progress-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 9px;
+  color: #8b958e;
+  font-size: 11px;
+}
+
+
+/* Goals */
+
+.team-xp-goals {
+  margin-top: 26px;
+  overflow: hidden;
+  border: 1px solid #e4e9e1;
+  border-radius: 13px;
+  background: #ffffff;
+}
+
+.team-xp-goal {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 78px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #edf0eb;
+}
+
+.team-xp-goal:last-child {
+  border-bottom: 0;
+}
+
+.team-xp-goal.done {
+  background: #fbfdf8;
+}
+
+.team-xp-check {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #d9e0d7;
+  border-radius: 50%;
+  background: #f7f9f5;
+  color: #a4ada5;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.team-xp-goal.done .team-xp-check {
+  border-color: #c9dfa4;
+  background: #eaf4d9;
+  color: #55733f;
+}
+
+.team-xp-text {
+  min-width: 0;
+  color: #34423d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.team-xp-text small {
+  display: block;
+  margin-top: 4px;
+  color: #929b95;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.team-xp-reward {
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: #f2f6ed;
+  color: #668050;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* Responsive */
+
+@media (max-width: 900px) {
+  .team-xp-card {
+    padding: 24px;
+  }
+
+  .team-xp-header {
+    gap: 16px;
+  }
+
+  .team-xp-goal {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .team-xp-card {
+    padding: 20px 17px;
+    border-radius: 14px;
+  }
+
+  .team-xp-header {
+    flex-direction: column;
+  }
+
+  .team-xp-score {
+    width: 100%;
+    text-align: left;
+  }
+
+  .team-xp-goal {
+    grid-template-columns: 34px 1fr;
+  }
+
+  .team-xp-reward {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .team-xp-progress-info {
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+/* =========================================
+   SIDEBAR OPEN / CLOSE
+   ========================================= */
+
+.sidebar {
+  transition: transform 0.3s ease;
+}
+
+.main-shell {
+  transition: margin-left 0.3s ease;
+}
+
+/* Круглая кнопка */
+.sidebar-toggle {
+  position: absolute;
+  top: 24px;
+  right: -20px;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  background: #ffffff;
+  color: #244e40;
+
+  border: 1px solid #e1e6e2;
+  border-radius: 50%;
+
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+  z-index: 100;
+
+  box-shadow: 0 4px 14px rgba(36, 78, 64, 0.10);
+
+  transition:
+    transform 0.3s ease,
+    background 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  background: #f2f6ed;
+}
+
+
+/* ===== ЗАКРЫТОЕ МЕНЮ ===== */
+
+body.sidebar-collapsed .sidebar {
+  transform: translateX(calc(-100% + 20px));
+}
+
+body.sidebar-collapsed .main-shell {
+  margin-left: 20px;
+}
+
+body.sidebar-collapsed .sidebar-toggle {
+  transform: rotate(180deg);
+}
+.topbar {
+  justify-content: flex-end;
+}
+/* FOOTER */
+
+.contact-footer {
+  width: 100%;
+  margin: 45px 0 0;
+  padding: 24px 20px 30px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+
+  border-top: 1px solid #e5e9e8;
+
+  color: #7b8386;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.contact-footer .footer-divider {
+  color: #c4cbc7;
+}
