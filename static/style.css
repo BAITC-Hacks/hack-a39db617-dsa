@@ -89,3 +89,113 @@
   color: #71865e;
   font-size: 9px;
 }
+/* ===== FONT SIZE UPDATE ===== */
+
+body {
+  font-size: 15px;
+}
+
+.nav-item {
+  font-size: 13px;
+}
+
+.workspace-label {
+  font-size: 9px;
+}
+
+.side-note p {
+  font-size: 12px;
+}
+
+.sidebar-bottom {
+  font-size: 10px;
+}
+
+.breadcrumb {
+  font-size: 11px;
+}
+
+.demo-label {
+  font-size: 9px;
+}
+
+.identity select {
+  font-size: 12px;
+}
+
+.page-head p {
+  font-size: 13px;
+}
+
+.eyebrow {
+  font-size: 10px;
+}
+
+.primary,
+.secondary {
+  font-size: 12px;
+}
+
+.text-button {
+  font-size: 12px;
+}
+
+.hero-banner p {
+  font-size: 12px;
+}
+
+.banner-label {
+  font-size: 9px;
+}
+
+.banner-link {
+  font-size: 11px;
+}
+
+.stats > div > span {
+  font-size: 11px;
+}
+
+.muted {
+  font-size: 13px;
+}
+
+.filters select,
+.search input {
+  font-size: 12px;
+}
+
+.card-desc {
+  font-size: 12px;
+}
+
+.topic-tag,
+.badge,
+.card-number {
+  font-size: 10px;
+}
+
+.card-footer {
+  font-size: 11px;
+}
+
+.fields-view h3 {
+  font-size: 11px;
+}
+
+.fields-view p {
+  font-size: 14px;
+}
+
+.proposal p {
+  font-size: 13px;
+}
+
+.proposal-meta {
+  font-size: 12px;
+}
+
+.form-panel label,
+.stage-form label {
+  font-size: 12px;
+}
