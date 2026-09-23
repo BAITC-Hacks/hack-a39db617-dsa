@@ -280,3 +280,9 @@ body :is(
     gap: 3px;
   }
 }
+/* Recovery and wizard navigation */
+.resume-banner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;margin-bottom:24px;border:1px solid #dce7cc;border-radius:10px;background:#f0f6e8}
+.resume-banner strong{font-size:15px;color:#34513b}.resume-banner p{font-size:12px;color:#70806b;margin:5px 0 0}
+.draft-toolbar{display:flex;justify-content:space-between;align-items:center;gap:15px;color:#72816b;font-size:12px;margin-top:20px}
+.team-xp-goal-text{min-width:0;font-size:13px}.team-xp-goal-text small{display:block;color:#82907d;margin-top:4px;font-size:11px}
+@media(max-width:650px){.resume-banner{align-items:flex-start;flex-direction:column}.draft-toolbar{align-items:flex-start;flex-direction:column}}

@@ -62,15 +62,11 @@ def parse_task(row):
     task.update(rating(task['fields'], task['confirmed']))
     return task
 
+def demo_data():
+    return json.loads((ROOT / 'fixtures' / 'demo-data.json').read_text(encoding='utf-8'))
+
 def seeds():
-    cards = [
-        ('t1', 'Прогноз спроса для небольшой кофейни', 'Ритейл', 'Закупаем выпечку на глаз; к вечеру остаются непроданные позиции.', 'Планировать закупки и сократить списания.', 'Управляющий и сотрудники кофейни.', 'Обезличенные CSV продаж и списаний за 6 месяцев; синтетические примеры доступны для демо.', 'Прототип за 3 недели; без интеграции с кассой.', 'Панель прогноза спроса по категориям на следующий день.', 'На отложенной выборке MAE ниже, чем у среднего за последние 7 дней.', 'coffee@example.com', 'Созвон по вторникам, обратная связь в течение двух рабочих дней.'),
-        ('t2', 'Навигатор по университетским возможностям', 'Образование', 'Студенты ищут стажировки в разных каналах и пропускают сроки.', 'Объединить возможности в одном поиске.', 'Студенты 2–4 курсов.', 'Синтетический список из 30 стажировок и грантов.', 'Две недели; интерфейс на русском.', 'Каталог с поиском и фильтрами.', '', 'campus@example.com', 'Консультация раз в неделю.'),
-        ('t3', 'Карта раздельного сбора отходов', 'Экология', 'Жителям трудно найти ближайший пункт приёма.', 'Упростить поиск подходящего пункта.', 'Жители города.', 'Открытый список пунктов, требуется проверить актуальность.', '', 'Интерактивная карта пунктов и принимаемых материалов.', '', '', ''),
-        ('t4', 'Планирование маршрутов доставки', 'Логистика', 'Диспетчер вручную распределяет заказы между курьерами.', 'Сократить время планирования маршрутов.', 'Диспетчеры службы доставки.', '', '', '', '', '', ''),
-        ('t5', 'Помощник для службы поддержки', 'Сервисы', 'Хотим быстрее отвечать на повторяющиеся вопросы клиентов.', '', '', '', '', '', '', '', ''),
-    ]
-    return [dict(id=c[0], topic=c[2], fields=dict(zip(FIELDS, [c[1], *c[3:]]))) for c in cards]
+    return demo_data()['tasks']
 
 def init_db():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -83,12 +79,14 @@ def init_db():
         ''')
         if con.execute('SELECT COUNT(*) FROM tasks').fetchone()[0]:
             return
-        for card in seeds():
-            con.execute('INSERT INTO tasks(id,topic,draft,fields,confirmed,published) VALUES(?,?,?,?,1,1)', (card['id'], card['topic'], card['fields']['context'], json.dumps(card['fields'], ensure_ascii=False)))
-        teams = [('u1','Nomad Labs','Ритейл, аналитика','Анализ данных, UX','Python, pandas'), ('u2','Qadam','Образование, сервисы','Frontend, исследования','JavaScript, Figma'), ('u3','Green Step','Экология, карты','Геоданные, backend','Python, Leaflet'), ('u4','Route Makers','Логистика, оптимизация','Алгоритмы, аналитика','Python, SQL'), ('u5','Sana Studio','Образование, AI','NLP, дизайн интерфейсов','Python, JavaScript')]
-        con.executemany('INSERT INTO teams VALUES(?,?,?,?,?)', teams)
-        for i, task_id, team_id in [(1,'t1','u1'),(2,'t1','u5'),(3,'t2','u2'),(4,'t3','u3'),(5,'t4','u4')]:
-            con.execute('INSERT INTO proposals(id,task_id,team_id,idea,plan,duration,link) VALUES(?,?,?,?,?,?,?)', (f'p{i}',task_id,team_id,'Подготовим проверяемый прототип для описанного процесса.','1. Уточнение задачи\n2. Проверка данных\n3. Прототип и демонстрация','3 недели',f'https://example.com/demo/{i}'))
+        dataset = demo_data()
+        drafts = {d['task_id']: d['text'] for d in dataset['drafts']}
+        for card in dataset['tasks']:
+            con.execute('INSERT INTO tasks(id,topic,draft,fields,confirmed,published) VALUES(?,?,?,?,1,1)', (card['id'], card['topic'], drafts[card['id']], json.dumps(card['fields'], ensure_ascii=False)))
+        for team in dataset['teams']:
+            con.execute('INSERT INTO teams VALUES(?,?,?,?,?)', tuple(team[k] for k in ['id','name','interests','skills','technologies']))
+        for proposal in dataset['proposals']:
+            con.execute('INSERT INTO proposals(id,task_id,team_id,idea,plan,duration,link) VALUES(?,?,?,?,?,?,?)', tuple(proposal[k] for k in ['id','task_id','team_id','idea','plan','duration','link']))
 
 def ai_questions(payload):
     draft = clean(payload.get('draft', ''))
@@ -211,6 +209,8 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
     def do_GET(self):
         path = urlparse(self.path).path
+        if path == '/api/demo-data':
+            return self.send_json(demo_data())
         if path == '/api/state':
             with connect() as con:
                 tasks = [parse_task(r) for r in con.execute('SELECT * FROM tasks ORDER BY created DESC')]
