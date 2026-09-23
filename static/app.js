@@ -10,6 +10,7 @@ const levelClass = score => score < 40 ? 'draft' : score < 70 ? 'working' : scor
 const taskById = id => state.tasks.find(t=>t.id===id);
 const teamById = id => state.teams.find(t=>t.id===id);
 const countProposals = id => state.proposals.filter(p=>p.task_id===id).length;
+const proposalCount = n => `${n} ${n%100>=11&&n%100<=14?'откликов':n%10===1?'отклик':n%10>=2&&n%10<=4?'отклика':'откликов'}`;
 const teamPoints = id => state.milestones.filter(m=>state.proposals.find(p=>p.id===m.proposal_id)?.team_id===id).reduce((a,m)=>a+m.points,0);
 async function api(path, body) {
   let r;
@@ -69,7 +70,7 @@ function shell(content){
 }
 function pageHead(kicker,title,description,action=''){return `<div class="page-head"><div><div class="eyebrow">${kicker}</div><h1>${title}</h1><p>${description}</p></div>${action}</div>`;}
 function badge(t){return `<span class="badge ${levelClass(t.score)}"><i></i>${t.level}</span>`;}
-function card(t,index){return `<article class="task-card"><div class="card-top"><span class="topic-tag">${e(t.topic)}</span><span class="card-number">${String(index+1).padStart(2,'0')}</span></div><h3><button class="title-link" data-action="detail" data-id="${t.id}">${e(t.fields.title)}</button></h3><p class="card-desc">${e(t.fields.need || t.fields.context || 'Задача требует уточнения.')}</p><div class="score-row">${badge(t)}<span class="score-value">${t.score}<small>/100</small></span></div><div class="progress"><span style="width:${t.score}%"></span></div><div class="card-footer"><span>◉ ${countProposals(t.id)} откликов</span><button class="text-button" data-action="detail" data-id="${t.id}">Подробнее <span>↗</span></button></div></article>`;}
+function card(t,index){return `<article class="task-card"><div class="card-top"><span class="topic-tag">${e(t.topic)}</span><span class="card-number">${String(index+1).padStart(2,'0')}</span></div><h3><button class="title-link" data-action="detail" data-id="${t.id}">${e(t.fields.title)}</button></h3><p class="card-desc">${e(t.fields.need || t.fields.context || 'Задача требует уточнения.')}</p><div class="score-row">${badge(t)}<span class="score-value">${t.score}<small>/100</small></span></div><div class="progress"><span style="width:${t.score}%"></span></div><div class="card-footer"><span>◉ ${proposalCount(countProposals(t.id))}</span><button class="text-button" data-action="detail" data-id="${t.id}">Подробнее <span>↗</span></button></div></article>`;}
 function catalog(){
  const tasks=state.tasks.filter(t=>t.published), ready=tasks.filter(t=>t.score>=70).length;
  shell(`${pageHead('ОТКРЫТЫЕ ВОЗМОЖНОСТИ','Настоящие задачи.<br>Ваш следующий шаг.','Находите задачи бизнеса, предлагайте идеи и создавайте решения вместе.',role==='business'?'<button class="primary" data-action="new">＋ Создать задачу</button>':'<button class="primary" data-action="nav" data-view="workspace">Мои отклики ↗</button>')}${draftBanner()}<section class="hero-banner"><div><span class="banner-label">ОТ ИДЕИ К СОТРУДНИЧЕСТВУ</span><h2>Чем яснее задача,<br>тем ближе решение.</h2><p>Уточняйте детали, повышайте рейтинг готовности<br>и находите команду для следующего шага.</p><button class="banner-link" data-action="nav" data-view="guide">Как работает рейтинг <span>↗</span></button></div><div class="orbit-art" aria-hidden="true"><div class="orbit o1"></div><div class="orbit o2"></div><div class="orbit o3"></div><div class="art-star">✳</div><span class="floating-label l1">Идея</span><span class="floating-label l2">Команда</span><span class="floating-label l3">Решение ↗</span></div></section><section class="stats"><div><span>Открытых задач</span><strong>${tasks.length.toString().padStart(2,'0')}<small>в общем каталоге</small></strong></div><div><span>Готовы к работе</span><strong>${ready.toString().padStart(2,'0')}<small>рейтинг от 70 баллов</small></strong></div><div><span>Студенческих команд</span><strong>${state.teams.length.toString().padStart(2,'0')}<small>идеи, навыки, энергия</small></strong></div></section><section class="catalog-section"><div class="section-heading"><h2>Каталог задач <span>${tasks.length}</span></h2><span class="muted">↓ По рейтингу готовности</span></div><div class="filters"><label class="search"><span>⌕</span><input id="search" placeholder="Найти задачу или направление" aria-label="Поиск задач" value="${e(search)}"></label><select id="topic-filter" aria-label="Тема"><option value="">Все направления</option>${state.topics.map(t=>`<option ${topic===t?'selected':''}>${e(t)}</option>`).join('')}</select><select id="level-filter" aria-label="Уровень готовности"><option value="">Любая готовность</option>${['Черновик','Рабочая','Готовая','Приоритетная'].map(t=>`<option ${level===t?'selected':''}>${t}</option>`).join('')}</select></div><div id="cards" class="cards"></div><p class="catalog-note">Все задачи открыты для откликов. Рейтинг показывает полноту описания — выбор команды остаётся за бизнесом.</p></section>`);
@@ -252,7 +253,7 @@ function teamProgressCard(teamId) {
 }
 function workspace(){
  if(role==='business'){
- shell(`${pageHead('ЛИЧНЫЙ КАБИНЕТ · ДЕМО','Задачи и новые возможности.','Все задачи демо-пространства доступны представителю бизнеса.','<button class="primary" data-action="new">＋ Создать задачу</button>')}<div class="workspace-list">${state.tasks.map(t=>`<button class="workspace-row" data-action="detail" data-id="${t.id}"><div><span class="topic-tag">${e(t.topic)}</span><h3>${e(t.fields.title)}</h3><p>${t.published?'Опубликовано':'Не опубликовано'} · ${countProposals(t.id)} откликов · ${state.proposals.filter(p=>p.task_id===t.id&&p.status==='selected').length} команд выбрано</p></div><div>${badge(t)}<strong>${t.score}<small>/100</small></strong><span>↗</span></div></button>`).join('')}</div>`);
+ shell(`${pageHead('ЛИЧНЫЙ КАБИНЕТ · ДЕМО','Задачи и новые возможности.','Все задачи демо-пространства доступны представителю бизнеса.','<button class="primary" data-action="new">＋ Создать задачу</button>')}<div class="workspace-list">${state.tasks.map(t=>`<button class="workspace-row" data-action="detail" data-id="${t.id}"><div><span class="topic-tag">${e(t.topic)}</span><h3>${e(t.fields.title)}</h3><p>${t.published?'Опубликовано':'Не опубликовано'} · ${proposalCount(countProposals(t.id))} · ${state.proposals.filter(p=>p.task_id===t.id&&p.status==='selected').length} команд выбрано</p></div><div>${badge(t)}<strong>${t.score}<small>/100</small></strong><span>↗</span></div></button>`).join('')}</div>`);
  }else{
 
   const ps = state.proposals.filter(
@@ -263,7 +264,7 @@ function workspace(){
     ${pageHead(
       'КАБИНЕТ КОМАНДЫ',
       e(teamById(teamId).name),
-      `${ps.length} откликов · ${teamPoints(teamId)} баллов за подтверждённые этапы`
+      `${proposalCount(ps.length)} · ${teamPoints(teamId)} баллов за подтверждённые этапы`
     )}
 
     ${teamProgressCard(teamId)}
