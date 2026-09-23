@@ -84,13 +84,171 @@ ${editor.questions.map((q,i)=>{  const rubricItem = state.rubric.find(([field]) 
  if(editorStep===3){body=`<div class="detail-layout"><form id="card-form" class="panel form-panel"><div class="section-number">03 / ПРОВЕРЬТЕ И ПОДТВЕРДИТЕ</div><h2>Ваша задача обрела форму</h2><p class="muted">Проверьте каждое поле. Пропуски допустимы даже при публикации.</p><label>Направление<select name="topic">${state.topics.map(t=>`<option ${editor.topic===t?'selected':''}>${e(t)}</option>`).join('')}</select></label>${Object.entries(state.labels).map(([f,label])=>`<label>${e(label)}${f==='title'?' *':''}${f==='title'?`<input name="${f}" required minlength="3" maxlength="160" value="${e(editor.fields[f])}" placeholder="Короткое и понятное название">`:`<textarea name="${f}" maxlength="4000" placeholder="Пока не указано">${e(editor.fields[f])}</textarea>`}</label>`).join('')}<label class="confirm-label"><input id="confirmation" type="checkbox" ${editor.confirmNow?'checked':''}> <span>Я проверил(а) и подтверждаю сведения карточки. При публикации они будут доступны всем командам.</span></label><div class="actions"><button class="primary" type="submit" name="intent" value="publish">${editor.published?'Подтвердить изменения':'Подтвердить и опубликовать'} ↗</button>${!editor.published?'<button class="secondary" type="submit" name="intent" value="save">Сохранить черновик</button>':''}</div></form><div id="editor-rating">${ratingPanel(previewRating(editor.fields),true)}</div></div>`;}
  shell(`<button class="back" data-action="nav" data-view="catalog">← К каталогу</button>${pageHead('КОНСТРУКТОР ЗАДАЧИ','От мысли к понятной задаче.','Сначала смысл. Затем детали. И команда, готовая взяться за дело.')}<div class="steps">${stepNames.map((name,i)=>`<div class="step ${editorStep===i+1?'current':editorStep>i+1?'done':''}"><span>${editorStep>i+1?'✓':i+1}</span>${name}</div>`).join('')}</div>${body}`);
 }
+function teamProgressCard(teamId) {
+  const team = teamById(teamId);
+  if (!team) return '';
+
+  const proposals = state.proposals.filter(
+    p => p.team_id === teamId
+  );
+
+  const selected = proposals.some(
+    p => p.status === 'selected'
+  );
+
+  const proposalIds = proposals.map(p => p.id);
+
+  const confirmedStages = state.milestones.filter(
+    m =>
+      proposalIds.includes(m.proposal_id) &&
+      m.status === 'confirmed'
+  );
+
+  // Базовый демонстрационный прогресс + подтверждённые этапы
+  const xp = 100 + confirmedStages.length * 20;
+
+  const level = xp >= 200 ? 4 : xp >= 100 ? 3 : xp >= 50 ? 2 : 1;
+
+  const levelName =
+    level === 4 ? 'Innovation Maker' :
+    level === 3 ? 'Solution Builder' :
+    level === 2 ? 'Problem Solver' :
+    'Explorer';
+
+  const nextLevel =
+    level === 4 ? 300 :
+    level === 3 ? 200 :
+    level === 2 ? 100 : 50;
+
+  const levelStart =
+    level === 4 ? 200 :
+    level === 3 ? 100 :
+    level === 2 ? 50 : 0;
+
+  const progress = Math.min(
+    100,
+    ((xp - levelStart) / (nextLevel - levelStart)) * 100
+  );
+
+  const firstStageDone = confirmedStages.length > 0;
+
+  return `
+    <section class="team-xp-card">
+
+      <div class="team-xp-header">
+
+        <div>
+          <span class="team-xp-eyebrow">ПРОГРЕСС КОМАНДЫ</span>
+
+          <h2>${e(team.name)}</h2>
+
+          <p class="team-xp-level">
+            Уровень ${level}
+            <span>·</span>
+            ${levelName}
+          </p>
+        </div>
+
+        <div class="team-xp-score">
+          <strong>${xp}</strong>
+          <span>XP</span>
+        </div>
+
+      </div>
+
+      <div class="team-xp-progress">
+        <span style="width:${progress}%"></span>
+      </div>
+
+      <div class="team-xp-progress-info">
+        <span>${xp} XP</span>
+        <span>${nextLevel} XP до следующего уровня</span>
+      </div>
+
+      <div class="team-xp-goals">
+
+        <div class="team-xp-goal ${selected ? 'done' : ''}">
+          <div class="team-xp-check">${selected ? '✓' : '○'}</div>
+
+          <div class="team-xp-goal-text">
+            <strong>Команда выбрана</strong>
+            <small>
+              ${selected
+                ? 'Бизнес подтвердил сотрудничество'
+                : 'Ожидает решения бизнеса'}
+            </small>
+          </div>
+        </div>
+
+        <div class="team-xp-goal ${firstStageDone ? 'done' : ''}">
+          <div class="team-xp-check">${firstStageDone ? '✓' : '○'}</div>
+
+          <div class="team-xp-goal-text">
+            <strong>Первый этап выполнен</strong>
+            <small>
+              ${firstStageDone
+                ? 'Результат подтверждён бизнесом'
+                : 'Ожидает выполнения'}
+            </small>
+          </div>
+
+          ${firstStageDone
+            ? '<span class="team-xp-reward">+20 XP</span>'
+            : ''}
+        </div>
+
+        <div class="team-xp-goal">
+          <div class="team-xp-check">○</div>
+
+          <div class="team-xp-goal-text">
+            <strong>MVP представлен</strong>
+            <small>Следующая цель команды</small>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+  `;
+}
 function workspace(){
  if(role==='business'){
  shell(`${pageHead('ЛИЧНЫЙ КАБИНЕТ · ДЕМО','Задачи и новые возможности.','Все задачи демо-пространства доступны представителю бизнеса.','<button class="primary" data-action="new">＋ Создать задачу</button>')}<div class="workspace-list">${state.tasks.map(t=>`<button class="workspace-row" data-action="detail" data-id="${t.id}"><div><span class="topic-tag">${e(t.topic)}</span><h3>${e(t.fields.title)}</h3><p>${t.published?'Опубликовано':'Не опубликовано'} · ${countProposals(t.id)} откликов · ${state.proposals.filter(p=>p.task_id===t.id&&p.status==='selected').length} команд выбрано</p></div><div>${badge(t)}<strong>${t.score}<small>/100</small></strong><span>↗</span></div></button>`).join('')}</div>`);
  }else{
- const ps=state.proposals.filter(p=>p.team_id===teamId);
- shell(`${pageHead('КАБИНЕТ КОМАНДЫ',e(teamById(teamId).name),`${ps.length} откликов · ${teamPoints(teamId)} баллов за подтверждённые этапы`)}<div class="narrow">${ps.length?ps.map(proposalCard).join(''):'<div class="panel empty">Здесь появятся ваши отклики.<br><button class="text-button" data-action="nav" data-view="catalog">Перейти в каталог ↗</button></div>'}</div>`);
- }
+
+  const ps = state.proposals.filter(
+    p => p.team_id === teamId
+  );
+
+  shell(`
+    ${pageHead(
+      'КАБИНЕТ КОМАНДЫ',
+      e(teamById(teamId).name),
+      `${ps.length} откликов · ${teamPoints(teamId)} баллов за подтверждённые этапы`
+    )}
+
+    ${teamProgressCard(teamId)}
+
+    <div class="narrow">
+      ${
+        ps.length
+          ? ps.map(proposalCard).join('')
+          : `
+            <div class="panel empty">
+              Здесь появятся ваши отклики.<br>
+              <button
+                class="text-button"
+                data-action="nav"
+                data-view="catalog">
+                Перейти в каталог ↗
+              </button>
+            </div>
+          `
+      }
+    </div>
+  `);
+
+}
 }
 function teams(){shell(`${pageHead('СООБЩЕСТВО','Разные навыки. Общая цель.','Пять демонстрационных команд. Баллы начисляются только после подтверждения выполненного этапа бизнесом.')}<div class="cards">${state.teams.map(t=>`<article class="panel team-card"><div class="team-icon">${e(t.name[0])}</div><h2>${e(t.name)}</h2><p>${e(t.interests)}</p><div class="team-detail"><span>Навыки</span><strong>${e(t.skills)}</strong><span>Технологии</span><strong>${e(t.technologies)}</strong></div><div class="team-points"><b>${teamPoints(t.id)}</b> баллов за прогресс</div></article>`).join('')}</div>`);}
 function guide(){shell(`${pageHead('ПОНЯТНЫЕ ПРАВИЛА','Больше ясности — выше рейтинг.','Геймификация помогает бизнесу подготовить задачу к совместной работе.')}<div class="detail-layout"><div><section class="panel guide"><h2>От черновика до результата</h2>${['Опишите проблему своими словами.','Ответьте минимум на три предложенных вопроса или оставьте неизвестное пустым.','Отредактируйте и подтвердите карточку.','Опубликуйте задачу: каталог сортируется по рейтингу.','Команды отправляют идеи, планы, сроки и прототипы.','Бизнес вручную выбирает одну, несколько или ни одной команды.','Выбранная команда отправляет результат этапа; бизнес подтверждает его и начисляет 20 баллов.'].map((s,i)=>`<div class="guide-step"><b>${i+1}</b><p>${s}</p></div>`).join('')}<h3>Четыре уровня готовности</h3><p>0–39 — черновик · 40–69 — рабочая · 70–89 — готовая · 90–100 — приоритетная.</p><p>Низкий рейтинг не скрывает опубликованную задачу и не блокирует отклики. Рейтинг оценивает полноту сведений, а не репутацию компании.</p><h3>Как считаются баллы</h3><p>Начисляется полный вес за каждое содержательно заполненное и подтверждённое поле. Контекст и потребность дают по 10 баллов; контакт и формат взаимодействия — по 5. Пустые поля и ответы «не знаю», «уточним», «нет» не получают баллов. Автоматическая проверка смысла не выполняется: бизнес отвечает за достоверность.</p><h3>Демонстрационный режим</h3><p>Роли переключаются без регистрации; разграничение владельцев и авторизация не реализованы. Данные сохраняются на этом сервере в SQLite. Локальная AI-заглушка задаёт вопросы по пропускам и переносит ответы дословно. Ссылки example.com в тестовых откликах — примеры.</p><details><summary>Посмотреть AI-промпт</summary><pre>${e(state.aiPrompt)}</pre></details></section></div>${ratingPanel(previewRating(Object.fromEntries(Object.keys(state.labels).map(f=>[f,'Заполненное поле']))))}</div>`);}
