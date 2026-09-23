@@ -42,79 +42,7 @@ function proposalCard(p){
 }
 function previewRating(fields){const unusable=['нет','n/a','тест','потом','не знаю','???','...','уточним','неизвестно'];const breakdown=state.rubric.map(([field,max])=>({field,label:state.labels[field],max,points:fields[field]?.trim().length>=3&&!unusable.includes(fields[field].trim().toLowerCase())?max:0}));const score=breakdown.reduce((s,b)=>s+b.points,0);return {score,level:score<40?'Черновик':score<70?'Рабочая':score<90?'Готовая':'Приоритетная',breakdown,missing:breakdown.filter(b=>!b.points)};}
 function newEditor(t){editor=t?{...t,fields:{...t.fields},questions:[],confirmNow:false}:{fields:Object.fromEntries(Object.keys(state.labels).map(f=>[f,''])),draft:'',topic:'Образование',questions:[],confirmNow:false};editorStep=t?3:1;view='editor';render();}
-function aiAnalysisPanel() {
-  const analysis = previewRating(editor.fields);
 
-  const visibleFields = [
-    'context',
-    'need',
-    'users',
-    'data',
-    'criteria'
-  ];
-
-  const rows = visibleFields.map(field => {
-    const item = analysis.breakdown.find(b => b.field === field);
-
-    if (!item) return '';
-
-    return `
-      <div class="analysis-row ${item.points ? 'completed' : 'missing'}">
-        <span>
-          ${item.points ? '✓' : '○'} ${e(item.label)}
-        </span>
-
-        <strong>
-          ${item.points ? '+' + item.points : '0/' + item.max}
-        </strong>
-      </div>
-    `;
-  }).join('');
-
-  const missing = analysis.missing[0];
-
-  const recommendation = missing
-    ? `Добавьте «${e(missing.label)}», чтобы повысить готовность задачи ещё на ${missing.max} баллов.`
-    : 'Описание заполнено. Проверьте информацию перед публикацией.';
-
-  return `
-    <section class="ai-analysis">
-
-      <div class="analysis-header">
-        <div>
-          <span class="ai-analysis-label">✦ AI-анализ</span>
-          <h3>Готовность описания</h3>
-        </div>
-
-        <div class="analysis-score">
-          <strong>${analysis.score}</strong>
-          <span>/100</span>
-        </div>
-      </div>
-
-      <div class="analysis-progress">
-        <span style="width:${analysis.score}%"></span>
-      </div>
-
-      <div class="analysis-list">
-        ${rows}
-      </div>
-
-      <div class="ai-recommendation">
-        <strong>✦ Рекомендация AI</strong>
-        <p>${recommendation}</p>
-      </div>
-
-      <button
-        class="primary"
-        type="button"
-        data-action="improve-task">
-        Улучшить задачу →
-      </button>
-
-    </section>
-  `;
-}
 function editorPage(){
  const stepNames=['Черновик','Уточнение','Карточка и рейтинг'];
  let body='';
@@ -131,8 +59,6 @@ if(editorStep===2){body=`
 <p class="muted">
   Можно оставить поле пустым. Недостающие сведения останутся видны в рейтинге.
 </p>
-
-${aiAnalysisPanel()}
 
 ${editor.questions.map((q,i)=>{  const rubricItem = state.rubric.find(([field]) => field === q.field);
   const points = rubricItem ? rubricItem[1] : 0;
