@@ -228,3 +228,63 @@ body {
     font-size: 10px;
   }
 }
+/* Сол жақ мәзір */
+.sidebar nav {
+  display: grid;
+  gap: 5px;
+}
+
+.nav-item {
+  position: relative;
+  min-height: 44px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.nav-item > span {
+  font-size: 20px;
+}
+
+.nav-item:hover {
+  background: #f1f5ed;
+  color: var(--green);
+  transform: translateX(2px);
+}
+
+.nav-item.active {
+  background: #eaf2df;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--green);
+}
+
+.nav-item b {
+  min-width: 24px;
+  text-align: center;
+  font-size: 11px;
+}
+
+/* Кішкентай экранда мәзір белгішелермен қалады */
+@media (max-width: 850px) {
+  .nav-item {
+    min-height: 44px;
+    padding: 14px;
+    font-size: 0;
+  }
+
+  .nav-item b {
+    display: none;
+  }
+}
