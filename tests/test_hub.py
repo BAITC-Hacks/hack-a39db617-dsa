@@ -24,6 +24,29 @@ class HubTests(unittest.TestCase):
             for table in ['tasks','teams','proposals']:
                 self.assertGreaterEqual(c.execute('SELECT COUNT(*) FROM '+table).fetchone()[0],5)
             self.assertEqual([server.parse_task(r)['score'] for r in c.execute('SELECT * FROM tasks ORDER BY id')],[100,85,65,30,10])
+    def test_fixture_contract(self):
+        dataset=server.demo_data()
+        for key in ['drafts','tasks','teams','proposals']:
+            self.assertEqual(len(dataset[key]),5)
+            self.assertEqual(len({r['id'] for r in dataset[key]}),5)
+        tasks={t['id']:t for t in dataset['tasks']}
+        teams={t['id']:t for t in dataset['teams']}
+        for draft in dataset['drafts']:
+            self.assertTrue(draft['text'])
+            self.assertEqual(draft['industry'],tasks[draft['task_id']]['topic'])
+        for task in tasks.values():
+            self.assertEqual(set(task['fields']),set(server.FIELDS))
+            self.assertEqual(task['score'],server.rating(task['fields'],task['confirmed'])['score'])
+        self.assertEqual(len({p['idea'] for p in dataset['proposals']}),5)
+        for proposal in dataset['proposals']:
+            self.assertIn(proposal['task_id'],tasks)
+            self.assertIn(proposal['team_id'],teams)
+            self.assertTrue(all(proposal[f] for f in ['idea','plan','duration','link']))
+            self.assertTrue(server.url_ok(proposal['link']))
+        with server.connect() as con:
+            for draft in dataset['drafts']:
+                self.assertEqual(con.execute('SELECT draft FROM tasks WHERE id=?',(draft['task_id'],)).fetchone()[0],draft['text'])
+
     def test_rating_and_confirmation(self):
         fields={f:'Поле заполнено' for f in server.FIELDS}
         self.assertEqual(server.rating(fields,True)['score'],100)
